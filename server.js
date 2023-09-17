@@ -2,8 +2,11 @@ const express = require('express');
 const app = express();
 const port = 3000;
 
-app.get('/', (req, res) => {
-  res.send('hola ');
+app.use(express.json());
+
+
+app.get('/', (req, res,next) => {
+  res.send('hola pona');
 });
 
 app.listen(port, () => {
