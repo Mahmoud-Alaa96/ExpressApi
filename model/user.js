@@ -10,7 +10,13 @@ const schema = new mongoose.Schema({
         type:Number,
         index: true,
 
+    },
+    password:{
+        type: String,
+        require:true, 
     }
+    
+
 
 }) ;
 
