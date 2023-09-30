@@ -1,20 +1,31 @@
-module.exports = (params) => (req, res, next)=>{
-    const receivedParams = Object.keys(req.body);
-    const missingParams = params.filter(paramName => 
-        !receivedParams.includes(paramName))
-    
-    if (missingParams.length) {
-        const error = new Error('required parameter missing');
-        error.statusCode = 422;
-        error.errors = missingParams.reduce((agg, param) => {
-        agg[param] = {type:'required'};
-        return agg;
-    
-    },{});
-    return next(error)
-    }
-    next();
+const { body, validationResult } = require('express-validator')
+const userValidationRules = () => {
+  return [
+    // username must be an email
+    body('username').isEmail(),
+    // password must be at least 5 chars long
+    body('password').isLength({ min: 5 }).withMessage('must be at least 5 chars long'),
+  ]
 }
+
+const validate = (req, res, next) => {
+  const errors = validationResult(req)
+  if (errors.isEmpty()) {
+    return next()
+  }
+  const extractedErrors = []
+  errors.array().map(err => extractedErrors.push({[err.path] :err.msg }))
+
+  return res.status(422).json({
+    errors: extractedErrors,
+  })
+}
+
+module.exports = {
+  userValidationRules,
+  validate,
+}
+
 
 
 
