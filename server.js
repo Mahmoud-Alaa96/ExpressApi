@@ -34,8 +34,6 @@ app.use((err, req, res, next)=> {
     handleError? err : {
     message:'somthing went wrong'
   })
-
-
   
 })
 

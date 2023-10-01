@@ -1,7 +1,16 @@
 const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs');
-const saltRounds = 7;
+const jwt = require('jsonwebtoken');
+const util = require('util')
 
+
+const singJWT = util.promisify(jwt.sign);
+const verifyJWT = util.promisify(jwt.verify);
+
+
+
+const saltRounds = 7;
+const jwtSecret = "bankikenkomzakorasansai"
 
 const schema = new mongoose.Schema({
     username: {
@@ -21,7 +30,6 @@ const schema = new mongoose.Schema({
     
 }) ;
 
-
 schema.pre("save", async function(){
     const currentDocment = this;
     if(currentDocment.isModified("password")){
@@ -35,7 +43,20 @@ schema.methods.checkPassword = function(plainPassword){
     return bcrypt.compare(plainPassword, currentDocment.password);
 }
 
+schema.methods.generateToken = function(){
+    const currentDocment = this;
+    return singJWT({id:currentDocment.id}, jwtSecret, {expiresIn: '2m'})
 
+}
+
+
+schema.statics.getUserFromToken = async function(token) {
+    const User = this;
+    const {id} = await verifyJWT(token,jwtSecret);
+    const user = await User.findById(id);
+    return user;
+
+}
 
 const User = mongoose.model('User', schema)
   

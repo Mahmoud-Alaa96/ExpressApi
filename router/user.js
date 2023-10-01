@@ -1,6 +1,7 @@
 const express = require('express');
 const User = require('../model/user');
 const { userValidationRules, validate }  = require('../middleware/checkRequired');
+const  authorization = require('../middleware/authorization');
 const {check, validationResult} = require('express-validator');
 const app = express()
 const router = express.Router()
@@ -52,7 +53,6 @@ userValidationRules()
         err.statusCode = 422
         next(err)
     }
-a
 });
 
 router.post('/:login',async (req, res,next)=>{
@@ -69,10 +69,23 @@ router.post('/:login',async (req, res,next)=>{
       error.statusCode = 401;
       throw error;
     }
-    res.send()
+    const token = await user.generateToken();
+    res.json({
+      user,
+      token,
+      message:"Hello again",
+    })
+
   }catch(error){
     next(error)
 }
+
+})
+
+
+router.get("/profile",authorization,
+(req, res, next)=>{
+    res.send(req.user)    
 
 })
 
