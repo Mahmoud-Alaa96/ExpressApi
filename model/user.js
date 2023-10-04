@@ -2,6 +2,8 @@ const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const util = require('util')
+const _ = require('lodash')
+
 
 
 const singJWT = util.promisify(jwt.sign);
@@ -28,6 +30,10 @@ const schema = new mongoose.Schema({
         require:true, 
     }
     
+},{
+    toJSON:{ 
+        transform:(doc, ret) => _.omit(ret, ['__v','password'])
+}
 }) ;
 
 schema.pre("save", async function(){
@@ -45,7 +51,7 @@ schema.methods.checkPassword = function(plainPassword){
 
 schema.methods.generateToken = function(){
     const currentDocment = this;
-    return singJWT({id:currentDocment.id}, jwtSecret, {expiresIn: '2m'})
+    return singJWT({id:currentDocment.id}, jwtSecret, {expiresIn: '1h'})
 
 }
 
