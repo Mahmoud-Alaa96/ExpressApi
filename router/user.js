@@ -6,7 +6,7 @@ const {check, validationResult} = require('express-validator');
 const app = express()
 const router = express.Router()
 const bcrypt = require('bcryptjs');
-     
+const CustomError = require('../helper/customError')
 
 
 const error_mes =()=> (req, res,next)=> {
@@ -59,16 +59,15 @@ router.post('/:login',async (req, res,next)=>{
     try{
     const user = await User.findOne({username: req.body.username});
     if(!user){
-      const error = new Error('Wronge username or password');
-      error.statusCode = 401;
-      throw error;
+      throw new CustomError('Wronge username or password',401);
     }
     const isMatch = await user.checkPassword(req.body.password)
     if(!isMatch){
-      const error = new Error('Wronge username or password');
-      error.statusCode = 401;
-      throw error;
+
+     throw new CustomError('Wronge username or password',401);
+   
     }
+
     const token = await user.generateToken();
     res.json({
       user,
@@ -77,7 +76,7 @@ router.post('/:login',async (req, res,next)=>{
     })
 
   }catch(error){
-    next(error)
+    res.send(error)
 }
 
 })
@@ -107,4 +106,4 @@ module.exports = router
 
 
 
-//if else login user
+ 
